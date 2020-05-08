@@ -1,4 +1,4 @@
-- Docker là gì?(kubernetes)
+<!-- - Docker là gì?(kubernetes)
 - Lịch sử triển khai ứng dụng: traditional deployment ->  virtualized deployment -> container deployment
 - Docker là 1 platform triển khai ứng dụng dưới dạng container
 - Cài đặt mọi thứ cần thiết cho dự án của bạn
@@ -7,6 +7,93 @@
 - Các object cơ bản:
  + images: đóng gói các tài nguyên cần thiết cho dự án của bạn
  + container: sinh ra khi chạy các images
- + volunme: duy trì trạng thái dữ liệu của container
+ + volume: duy trì trạng thái dữ liệu của container
  + network: giao tiếp container với nhau
-- Các command line cơ bản:
+registry: lưu giữ các image -> hub.docker.com
+
+- Các command line cơ bản: docker run -it --name mongo -p 27017:27017 -d (-v) mongo
+
+Run image:                    $ docker run ${IMAGE_NAME} $ docker run hello-world
+Show history of image mongo:  $ docker image history ${IMAGE_NAME} OR $ docker history ${IMAGE_NAME} 
+Show detail of image:         $ docker image inspect ${IMAGE_NAME} OR $ docker inspect ${IMAGE_NAME}
+Pull image from registry(default IMAGE_TAG=latest): 
+$ docker image pull ${IMAGE_NAME}:${IMAGE_TAG} OR $ docker pull ${IMAGE_NAME}:${IMAGE_TAG}
+$ docker image build -t huuhung/nginx-website .(image)  
+$ docker image push (image) -> If denied, do:  $ docker login
+$ docker image search ubun3
+
+$ docker commit U1 ubuntu-vim:verstion1
+Xuất image -> file
+$ docker save --output myimage.tar ff
+$ docker load -i myimage.tar
+$ docker tag f newimage:version2
+
+$ docker diff [containerID](kiểm tra cấu trúc file container sau những lần thay đổi)
+$ docker start(stop) [containerID]
+$ docker cp /mycode/myimage/test.html cent:/var/www/html/
+
+$ docker run -it alpine sh(attach)           # -it: interactive mode, sh: command when running
+$ docker run -d alpine                   `   # -d: run container in background
+$ docker run -p 27017:27017 mongo            # -p: mapping host port 27017 with container port 27017
+$ docker run -v $(pwd)/data:/data/db mongo   # -v: mapping folder host ${pwd}/data with container folder /data/db
+$ docker run -e(--env) USER=NNVGM nnvgm/hello_user  # -e: USER=NNVGM : set env USER=NNVGM for container
+$ docker container exec -it mynginx bash -> ls... exit  - Access Container 
+$ docker run -d -p 3306:3306 --name mysql --env MYSQL_ROOT_PASSWORD=123456 mysql
+
+$ docker container run -d -p 8080:80 -v $(pwd):/usr/share/nginx/html --name nginx-website nginx
+$ docker run -it -name C2 --volumes-from C1 ubuntu:latest
+
+Docker volume: tạo ổ đĩa, xóa ở container, ở ổ đĩa vẫn còn
+$ docker volume ls
+$ docker volume inspect D1
+$ docker volume create(rm) D1   
+$ docker run -it --mount source=D1,target=/home/disk1 ubuntu:latest
+$ docker volume create --opt device=/Users/huuhung/Desktop/dulieu/ --opt type=none --opt o=bind D1
+-> docker run -it -v D1:/home/disk ubuntu:latest
+
+Docker network:
+$ docker network ls -> (default: bridge, host, none)
+$ docker network inspect bridge ->"Containers":{}
+Tạo 2 container B1, B2 thì mặc định bridge: có 2 container và IP, mỗi container có IP và bridge, 2 container nối cùng 1 mạng nên lk mạng dc vs nhau nhuwnng chưa lk ra bên ngoài host dc(-p 8080:80, container chạy apache2(/var/www -> httpd -> vi index.html, /usr/share/nginx/src))
+$ docker network create --driver bridge network1(docker network rm network1)
+$ docker network connect(disconnect) bridge B3
+
+$ docker run -d --name c-php -h php -v /mycode/:/home/mycode/ --network www-net(tạo cầu trc) php:7.3-fpm
+
+docker run --help, docker image --help
+
+DOCKERFILE PARTS
+  FROM - The os used. Common is alpine, debian, ubuntu
+  ENV - Environment variables
+  RUN - Run commands/shell scripts, etc
+  EXPOSE - Ports to expose
+  CMD - Final command run when you launch a new container from image
+  WORKDIR - Sets working directory (also could use 'RUN cd /some/path')
+  COPY # Copies files from host to container
+From the same directory as Dockerfile $ docker image build -t [REPONAME] .  
+
+
+
+View Log $ docker logs ${CONTAINER_ID}
+
+dockerfile(FROM alpine)
+CMD ["echo", "hello world"]) docker build -it IMAGE, push image lên dockerhub
+
+
+docker compose: running multi container (docker-compose.yml)
+version: '3.6'
+services:
+  mongo:
+     container_name: mongo
+     image: mongo
+     ports:
+	- 27017:27017
+       (- 27018:27017)
+     volumes:
+        - ./db:/data/db   docker-compose up
+
+
+
+
+
+
